@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>icare_qatar</title>
+<style>
+/* Layout: sticky glass nav, quiet hero, model chips + category tabs, product grid, slide-in cart. */
+:root{
+  --bg:#ffffff;
+  --bg-soft:#f5f5f7;
+  --ink:#1d1d1f;
+  --ink-2:#6e6e73;
+  --line:#d2d2d7;
+  --accent:#1d1d1f;
+  --good:#1a7f37;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#000;--bg-soft:#161617;--ink:#f5f5f7;--ink-2:#a1a1a6;--line:#3a3a3c;--accent:#f5f5f7;--good:#30d158;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{--bg:#000;--bg-soft:#161617;--ink:#f5f5f7;--ink-2:#a1a1a6;--line:#3a3a3c;--accent:#f5f5f7;--good:#30d158;color-scheme:dark}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;line-height:1.47}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid #0071e3;outline-offset:2px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+
+/* nav */
+nav{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:52px;gap:16px}
+.brand{font-weight:600;font-size:17px;letter-spacing:-.01em;text-decoration:none}
+.nav-links{display:flex;gap:24px;font-size:13px}
+.nav-links a{text-decoration:none;color:var(--ink-2)}
+.nav-links a:hover{color:var(--ink)}
+.cart-btn{background:none;border:0;display:flex;align-items:center;gap:6px;font-size:13px;padding:8px 4px}
+.badge{min-width:18px;height:18px;border-radius:9px;background:var(--ink);color:var(--bg);font-size:11px;display:inline-grid;place-items:center;padding:0 5px}
+
+/* hero */
+.hero{text-align:center;padding:72px 0 48px}
+.hero h1{font-size:clamp(34px,6vw,56px);line-height:1.07;letter-spacing:-.025em;font-weight:600;text-wrap:balance}
+.hero p{font-size:clamp(17px,2.2vw,21px);color:var(--ink-2);margin:14px auto 0;max-width:560px;text-wrap:balance}
+.trust{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 28px;margin-top:28px;font-size:13px;color:var(--ink-2)}
+.trust span::before{content:"✓";margin-inline-end:6px;color:var(--ink)}
+.lang{background:none;border:1px solid var(--line);border-radius:980px;padding:4px 12px;font-size:12px}
+html[lang="ar"] body{font-family:-apple-system,BlinkMacSystemFont,"SF Arabic","Segoe UI",Tahoma,Arial,sans-serif}
+html[lang="ar"] *{letter-spacing:0!important}
+.sw{direction:ltr}
+input[type=tel],#trkId{direction:ltr;text-align:start}
+html[dir="rtl"] .drawer{right:auto;left:0;transform:translateX(-100%);box-shadow:10px 0 40px rgba(0,0,0,.15)}
+html[dir="rtl"] .drawer.on{transform:none}
+
+/* picker */
+.band{background:var(--bg-soft);padding:40px 0 56px}
+.step{font-size:13px;color:var(--ink-2);margin-bottom:10px;font-weight:500}
+.series-row,.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+.series-row::-webkit-scrollbar,.chips::-webkit-scrollbar{display:none}
+.pill{flex:none;border:1px solid var(--line);background:var(--bg);border-radius:980px;padding:8px 16px;font-size:14px;transition:.15s}
+.pill:hover{border-color:var(--ink-2)}
+.pill[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.series-row{margin-bottom:22px}
+.picked{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:34px 0 18px}
+.picked h2{font-size:clamp(26px,4vw,36px);letter-spacing:-.02em;font-weight:600}
+.picked small{font-size:14px;color:var(--ink-2)}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:20px;scrollbar-width:none}
+.tab{flex:none;border:0;background:none;padding:8px 14px;border-radius:980px;font-size:14px;color:var(--ink-2)}
+.tab[aria-pressed="true"]{background:var(--bg);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+
+/* grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.card{background:var(--bg);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.ico{height:92px;display:grid;place-items:center;color:var(--ink);margin-bottom:4px}
+.ico svg{width:64px;height:64px;stroke:currentColor;fill:none;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
+.card h3{font-size:17px;font-weight:600;letter-spacing:-.01em}
+.card p{font-size:13px;color:var(--ink-2);flex:1}
+.tag{font-size:11px;color:var(--good);font-weight:600}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px}
+.price{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.add{background:var(--ink);color:var(--bg);border:0;border-radius:980px;padding:8px 18px;font-size:14px}
+.add:hover{opacity:.82}
+
+/* info */
+.info{padding:64px 0}
+.info .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px}
+.info h4{font-size:19px;font-weight:600;margin-bottom:6px;letter-spacing:-.01em}
+.info p{color:var(--ink-2);font-size:15px}
+footer{border-top:1px solid var(--line);padding:24px 0 40px;font-size:12px;color:var(--ink-2)}
+
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:.25s;z-index:30}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(440px,100%);background:var(--bg);z-index:31;transform:translateX(100%);transition:transform .3s ease;display:flex;flex-direction:column;box-shadow:-10px 0 40px rgba(0,0,0,.15)}
+.drawer.on{transform:none}
+.d-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line)}
+.d-head h2{font-size:21px;font-weight:600}
+.x{background:var(--bg-soft);border:0;width:32px;height:32px;border-radius:50%;font-size:16px}
+.d-body{flex:1;overflow-y:auto;padding:8px 20px 20px}
+.empty{color:var(--ink-2);text-align:center;padding:48px 0;font-size:15px}
+.line{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.line b{font-weight:600;font-size:15px}
+.line small{color:var(--ink-2);font-size:13px;grid-column:1}
+.qty{display:flex;align-items:center;gap:10px;grid-column:1;margin-top:6px}
+.qty button{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:var(--bg)}
+.line .lp{grid-row:1;grid-column:2;font-variant-numeric:tabular-nums;font-weight:600;font-size:15px}
+.rm{grid-column:2;grid-row:2/4;align-self:end;background:none;border:0;color:var(--ink-2);font-size:13px;text-decoration:underline}
+.form{display:grid;gap:10px;margin-top:20px}
+.form label{font-size:12px;color:var(--ink-2);display:grid;gap:4px}
+.form input,.form textarea{font:inherit;font-size:16px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--bg);color:var(--ink);width:100%}
+.form textarea{resize:vertical;min-height:64px}
+.d-foot{padding:16px 20px 22px;border-top:1px solid var(--line);display:grid;gap:10px}
+.total{display:flex;justify-content:space-between;font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
+.wa{display:block;text-align:center;text-decoration:none;background:#1faa59;color:#fff;border-radius:980px;padding:13px;font-size:16px;font-weight:600}
+.wa[aria-disabled="true"]{background:var(--line);color:var(--ink-2);pointer-events:none}
+.ghost{background:none;border:0;color:var(--ink-2);font-size:13px;text-decoration:underline;justify-self:center}
+.note{font-size:12px;color:var(--ink-2);text-align:center}
+.err{color:#d70015;font-size:12px;min-height:16px;text-align:center}
+/* stock states + admin */
+.card.out{opacity:.55}
+.card.out .ico{filter:grayscale(1)}
+.tag.off{color:var(--ink-2)}
+.add:disabled{background:var(--line);color:var(--ink-2);cursor:not-allowed}
+.add:disabled:hover{opacity:1}
+.manage{display:none;background:var(--bg-soft);border:0;border-radius:980px;padding:6px 12px;font-size:12px}
+.manage.on{display:inline-block}
+.adm{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.45);display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 12px}
+.adm.on{display:flex}
+.adm-box{background:var(--bg);border-radius:18px;width:min(760px,100%);padding:20px;display:grid;gap:18px}
+.adm-box h2{font-size:22px;font-weight:600}
+.adm-box h3{font-size:15px;font-weight:600;margin-bottom:8px}
+.adm-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.adm select,.adm input,.adm textarea{font:inherit;font-size:15px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg);color:var(--ink);min-width:0}
+.adm-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sm{border:1px solid var(--line);background:var(--bg);border-radius:980px;padding:6px 12px;font-size:13px}
+.arow{display:grid;grid-template-columns:1fr 92px auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.arow small{color:var(--ink-2);display:block;font-size:12px}
+.arow input[type=number]{width:92px}
+.sw{position:relative;width:48px;height:28px;border-radius:14px;border:0;background:var(--line);padding:0}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s}
+.sw[aria-pressed="true"]{background:#34c759}
+.sw[aria-pressed="true"]::after{left:23px}
+.newp{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.newp .wide{grid-column:1/-1}
+.adm-msg{font-size:13px;color:var(--ink-2);min-height:18px}
+.mini-rm{background:none;border:0;color:#d70015;font-size:12px;text-decoration:underline}
+/* notices + tracking */
+.notice{background:var(--bg);border-radius:14px;padding:14px 16px;font-size:14px;color:var(--ink-2);margin-bottom:18px;border:1px solid var(--line)}
+.notice b{color:var(--ink)}
+.chk{display:flex!important;grid-template-columns:none!important;flex-direction:row;gap:10px!important;align-items:flex-start;font-size:13px!important;color:var(--ink)!important;line-height:1.35}
+.chk input{width:auto!important;margin-top:2px}
+.oid{font-size:13px;color:var(--ink-2);margin-top:14px}
+.oid b{color:var(--ink);font-variant-numeric:tabular-nums}
+.sent{background:var(--bg-soft);border-radius:12px;padding:12px 14px;font-size:13px;display:grid;gap:8px}
+.trk-form{display:flex;gap:8px;flex-wrap:wrap}
+.trk-form input{flex:1;min-width:180px}
+.tl{list-style:none;padding:0;display:grid;gap:0;margin:6px 0 0}
+.tl li{position:relative;padding:0 0 18px;padding-inline-start:28px;color:var(--ink-2);font-size:15px}
+.tl li::before{content:"";position:absolute;inset-inline-start:0;top:3px;width:14px;height:14px;border-radius:50%;border:2px solid var(--line);background:var(--bg)}
+.tl li::after{content:"";position:absolute;inset-inline-start:6px;top:20px;bottom:-2px;width:2px;background:var(--line)}
+.tl li:last-child::after{display:none}
+.tl li.done{color:var(--ink)}
+.tl li.done::before{background:var(--ink);border-color:var(--ink)}
+.tl li.now{font-weight:600}
+.facts{display:grid;gap:4px;font-size:14px;margin-top:6px}
+.facts span{color:var(--ink-2)}
+.orow{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.orow small{color:var(--ink-2)}
+.ofields{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:10px}
+.ofields .wide{grid-column:1/-1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:640px){.nav-links{display:none}.hero{padding:48px 0 32px}}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#top" style="display:flex;align-items:center;gap:8px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10.5 6.5h3M9.5 13.5l2.5 2.5 3-4"/></svg>icare_qatar</a>
+    <div class="nav-links"><a href="#shop">Shop</a><a href="#why">Why genuine</a><a href="#" id="openTrk">Track order</a><a href="#contact">Contact</a></div>
+    <span style="display:flex;align-items:center;gap:10px"><button class="lang" id="langBtn" aria-label="Language">العربية</button><button class="manage" id="openAdm">Manage stock</button>
+    <button class="cart-btn" id="openCart" aria-label="Open cart">Cart <span class="badge" id="count">0</span></button></span>
+  </div>
+</nav>
+
+<header class="hero wrap" id="top">
+  <h1>Genuine iPhone parts.<br>Made for your iPhone.</h1>
+  <p>Screens, batteries, cameras and more for every iPhone model. Pick your model, add parts, and send your order straight to WhatsApp.</p>
+  <div class="trust"><span>100% genuine parts</span><span>Tested before dispatch</span><span>Order in minutes on WhatsApp</span><span>Delivery in 1 to 14 days</span></div>
+</header>
+
+<main class="band" id="shop">
+  <div class="wrap">
+    <div class="step">1. Choose your iPhone</div>
+    <div class="series-row" id="series"></div>
+    <div class="chips" id="models"></div>
+
+    <div class="picked">
+      <h2 id="pickedName"></h2>
+      <small id="pickedCount"></small>
+    </div>
+
+    <div class="notice"><b>Parts price only.</b> Prices shown are for the genuine part and do not include fitting. You can take the part to any service centre to fix, or we can arrange the fitting for you at an additional charge.<br><b>Delivery:</b> 1 to 14 days, depending on the part and availability. We confirm your exact delivery time on WhatsApp.</div>
+    <div class="step">2. Choose a part</div>
+    <div class="tabs" id="tabs"></div>
+    <div class="grid" id="grid"></div>
+  </div>
+</main>
+
+<section class="info wrap" id="why">
+  <div class="cols">
+    <div><h4>Genuine only</h4><p>Every part is original Apple quality, so Face ID, True Tone and camera performance work as they should.</p></div>
+    <div><h4>Tested first</h4><p>Each part is checked before it leaves us, so it fits and works the first time.</p></div>
+    <div><h4>Simple ordering</h4><p>Fill your cart, check out, and your order summary opens in WhatsApp. We confirm price and delivery with you there.</p></div>
+    <div><h4>Parts only, fitting optional</h4><p>Our prices cover the part only. Fit it at any service centre, or ask us to arrange fitting for an additional charge.</p></div>
+    <div><h4>Track your order</h4><p>Every order gets an order ID. Use Track order at the top to see its status and shipping details.</p></div>
+  </div>
+</section>
+
+<footer id="contact"><div class="wrap">icare_qatar · Qatar. Prices in QAR. Apple and iPhone are trademarks of Apple Inc. This store is not affiliated with Apple. <a href="#" id="ownerLink" style="margin-inline-start:8px">Owner login</a></div></footer>
+
+<div class="adm" id="login" role="dialog" aria-label="Owner login">
+  <div class="adm-box">
+    <div class="adm-top"><h2>Owner login</h2><button class="x" id="closeLogin" aria-label="Close">✕</button></div>
+    <div class="ofields">
+      <input class="wide" id="lEmail" type="email" placeholder="Email" aria-label="Email" autocomplete="username">
+      <input class="wide" id="lPass" type="password" placeholder="Password" aria-label="Password" autocomplete="current-password">
+    </div>
+    <button class="add" id="lGo">Sign in</button>
+    <div class="adm-msg" id="lMsg" role="status"></div>
+  </div>
+</div>
+
+<div class="adm" id="trk" role="dialog" aria-label="Track your order">
+  <div class="adm-box">
+    <div class="adm-top"><h2>Track your order</h2><button class="x" id="closeTrk" aria-label="Close">✕</button></div>
+    <div class="trk-form">
+      <input id="trkId" placeholder="Order ID, e.g. IC-7K2QX" aria-label="Order ID" autocapitalize="characters">
+      <button class="add" id="trkGo">Track</button>
+    </div>
+    <div id="trkOut" aria-live="polite"></div>
+  </div>
+</div>
+
+<div class="adm" id="adm" role="dialog" aria-label="Manage stock">
+  <div class="adm-box">
+    <div class="adm-top"><h2>Manage stock</h2><button class="x" id="closeAdm" aria-label="Close">✕</button></div>
+    <div>
+      <h3>Stock and price by model</h3>
+      <div class="adm-tools">
+        <select id="admModel" aria-label="Model"></select>
+        <button class="sm" id="allIn">Mark all in stock</button>
+        <button class="sm" id="allOut">Mark all out of stock</button>
+      </div>
+      <div id="admList"></div>
+    </div>
+    <div>
+      <h3>Order tracking updates</h3>
+      <div class="ofields">
+        <input id="oId" placeholder="Order ID (from WhatsApp)" aria-label="Order ID" autocapitalize="characters">
+        <select id="oStatus" aria-label="Status"></select>
+        <input id="oCourier" placeholder="Courier (e.g. Aramex)" aria-label="Courier">
+        <input id="oNum" placeholder="Tracking number" aria-label="Tracking number">
+        <input class="wide" id="oNote" placeholder="Note for the customer (optional)" aria-label="Note">
+      </div>
+      <button class="sm" id="oSave">Save tracking update</button>
+      <div id="oList"></div>
+    </div>
+    <div>
+      <h3>Add a new product</h3>
+      <div class="newp">
+        <input id="npName" placeholder="Product name" aria-label="Product name">
+        <input id="npCat" placeholder="Category (e.g. Display)" aria-label="Category" list="catList">
+        <datalist id="catList"></datalist>
+        <input id="npPrice" type="number" min="0" placeholder="Base price (QAR)" aria-label="Base price">
+        <select id="npIcon" aria-label="Icon"></select>
+        <textarea class="wide" id="npDesc" rows="2" placeholder="Short description" aria-label="Description"></textarea>
+        <button class="sm wide" id="npAdd">Add product (in stock for all models)</button>
+      </div>
+      <div class="adm-msg" id="admMsg" role="status"></div>
+    </div>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Cart" aria-hidden="true">
+  <div class="d-head"><h2>Your order</h2><button class="x" id="closeCart" aria-label="Close cart">✕</button></div>
+  <div class="d-body" id="cartBody"></div>
+  <div class="d-foot" id="cartFoot" hidden>
+    <div class="total"><span>Total</span><span id="total"></span></div>
+    <a class="wa" id="waLink" href="#" target="_blank" rel="noopener" aria-disabled="true">Send order on WhatsApp</a>
+    <div class="sent" id="sent" hidden><span>Order <b id="sentId"></b> is ready in WhatsApp. Save this ID to track your order.</span><button class="sm" id="newOrder">Start a new order</button></div>
+    <div class="err" id="err" role="alert"></div>
+    <button class="ghost" id="copyBtn">Copy order summary</button>
+    <div class="note">Parts price only, fitting not included. Delivery takes 1 to 14 days. Your order opens in WhatsApp, where payment and delivery are confirmed.</div>
+  </div>
+</aside>
+
+<script>
+/* ===== EDIT THESE ===== */
+const WHATSAPP_NUMBER = "97450587868";   // country code + number, digits only (Qatar = 974)
+const CURRENCY = "QAR";
+const STORE_NAME = "icare_qatar";
+
+/* ===== FIREBASE: paste your values (see FIREBASE_SETUP.md) ===== */
+const FIREBASE_CONFIG = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  appId: "YOUR_APP_ID"
+};
+const ADMIN_EMAIL = "owner@example.com";   // the one account allowed to manage stock
+
+/* Models: m = price multiplier applied to the base part price. */
+const SERIES = [
+  { name: "iPhone 17",  models: [["iPhone 17 Pro Max",1.9],["iPhone 17 Pro",1.8],["iPhone Air",1.7],["iPhone 17",1.6]] },
+  { name: "iPhone 16",  models: [["iPhone 16 Pro Max",1.7],["iPhone 16 Pro",1.6],["iPhone 16 Plus",1.4],["iPhone 16",1.3],["iPhone 16e",1.1]] },
+  { name: "iPhone 15",  models: [["iPhone 15 Pro Max",1.5],["iPhone 15 Pro",1.4],["iPhone 15 Plus",1.2],["iPhone 15",1.1]] },
+  { name: "iPhone 14",  models: [["iPhone 14 Pro Max",1.3],["iPhone 14 Pro",1.2],["iPhone 14 Plus",1.05],["iPhone 14",1.0]] },
+  { name: "iPhone 13",  models: [["iPhone 13 Pro Max",1.1],["iPhone 13 Pro",1.0],["iPhone 13",0.9],["iPhone 13 mini",0.8]] },
+  { name: "iPhone 12",  models: [["iPhone 12 Pro Max",0.95],["iPhone 12 Pro",0.9],["iPhone 12",0.8],["iPhone 12 mini",0.7]] },
+  { name: "iPhone 11",  models: [["iPhone 11 Pro Max",0.8],["iPhone 11 Pro",0.75],["iPhone 11",0.65]] },
+  { name: "iPhone SE / X",  models: [["iPhone SE (3rd gen)",0.5],["iPhone XS Max",0.65],["iPhone XS",0.6],["iPhone XR",0.55],["iPhone X",0.55]] }
+];
+
+/* Parts: base price at multiplier 1.0. SAMPLE PRICES, replace with yours. */
+const PARTS = [
+  { id:"display",  cat:"Display",   name:"Display Assembly",   base:600, desc:"Genuine OLED / Retina display with True Tone and touch.", icon:'<rect x="20" y="6" width="24" height="52" rx="5"/><path d="M28 11h8"/>' },
+  { id:"battery",  cat:"Battery",   name:"Battery",            base:180, desc:"Original-capacity battery with full health reporting.",   icon:'<rect x="14" y="20" width="32" height="24" rx="4"/><path d="M50 28v8M26 26l-4 6h8l-4 6"/>' },
+  { id:"rcam",     cat:"Camera",    name:"Rear Camera",        base:350, desc:"Genuine main camera module, tested for focus and OIS.",   icon:'<rect x="12" y="12" width="40" height="40" rx="10"/><circle cx="26" cy="26" r="6"/><circle cx="38" cy="38" r="6"/>' },
+  { id:"fcam",     cat:"Camera",    name:"Front Camera",       base:150, desc:"Front camera with sensor flex, Face ID compatible.",       icon:'<circle cx="32" cy="32" r="18"/><circle cx="32" cy="32" r="7"/>' },
+  { id:"port",     cat:"Charging",  name:"Charging Port Flex", base:90,  desc:"Lightning or USB-C port with microphone and antenna flex.",icon:'<rect x="14" y="26" width="36" height="12" rx="6"/><path d="M24 32h16"/>' },
+  { id:"back",     cat:"Body",      name:"Back Glass",         base:220, desc:"Original back glass panel, wireless charging ready.",      icon:'<rect x="16" y="8" width="32" height="48" rx="7"/><circle cx="26" cy="19" r="4"/>' },
+  { id:"speaker",  cat:"Audio",     name:"Loudspeaker",        base:70,  desc:"Bottom loudspeaker module for clear, loud sound.",         icon:'<path d="M14 26h8l12-9v30l-12-9h-8z"/><path d="M42 24c4 4 4 12 0 16M47 19c7 7 7 19 0 26"/>' },
+  { id:"ear",      cat:"Audio",     name:"Earpiece Speaker",   base:60,  desc:"Top earpiece speaker for calls.",                           icon:'<rect x="14" y="26" width="36" height="12" rx="6"/><path d="M22 32h20" stroke-dasharray="2 4"/>' },
+  { id:"sim",      cat:"Body",      name:"SIM Tray",           base:30,  desc:"Genuine SIM tray with seal ring.",                          icon:'<path d="M20 10h18l8 8v36H20z"/><path d="M28 30h12v14H28z"/>' }
+];
+/* ====================== */
+
+const $ = s => document.querySelector(s);
+let LANG = "en";
+try { const l = localStorage.getItem("lang"); LANG = l || ((navigator.language||"").toLowerCase().startsWith("ar") ? "ar" : "en"); } catch(e){}
+const tx = (en, ar) => LANG === "ar" ? ar : en;
+const fmt = n => (LANG === "ar" ? "ر.ق" : CURRENCY) + " " + n.toLocaleString("en-US");
+const fmtEn = n => CURRENCY + " " + n.toLocaleString("en-US");
+
+/* Arabic translations. Keys are the exact English text shown on the page. */
+const AR = {
+  "Shop":"المتجر","Why genuine":"لماذا الأصلي","Track order":"تتبع الطلب","Contact":"تواصل معنا","Cart":"السلة",
+  "Open cart":"فتح السلة","Close cart":"إغلاق السلة","Close":"إغلاق","Language":"اللغة","Decrease quantity":"إنقاص الكمية","Increase quantity":"زيادة الكمية",
+  "Genuine iPhone parts.":"قطع آيفون أصلية.","Made for your iPhone.":"لجهازك بالضبط.",
+  "Screens, batteries, cameras and more for every iPhone model. Pick your model, add parts, and send your order straight to WhatsApp.":"شاشات وبطاريات وكاميرات وغيرها لجميع موديلات آيفون. اختر موديلك، أضف القطع، وأرسل طلبك مباشرة عبر واتساب.",
+  "100% genuine parts":"قطع أصلية 100%","Tested before dispatch":"فحص قبل الشحن","Order in minutes on WhatsApp":"اطلب خلال دقائق عبر واتساب",
+  "1. Choose your iPhone":"1. اختر جهاز آيفون","2. Choose a part":"2. اختر القطعة",
+  "Parts price only.":"السعر للقطعة فقط.","Delivery in 1 to 14 days":"التوصيل خلال 1 إلى 14 يوماً","Delivery:":"التوصيل:","1 to 14 days, depending on the part and availability. We confirm your exact delivery time on WhatsApp.":"من 1 إلى 14 يوماً حسب القطعة وتوفرها. نؤكد لك موعد التوصيل بالتحديد عبر واتساب.",
+  "Prices shown are for the genuine part and do not include fitting. You can take the part to any service centre to fix, or we can arrange the fitting for you at an additional charge.":"الأسعار المعروضة للقطعة الأصلية فقط ولا تشمل التركيب. يمكنك أخذ القطعة إلى أي مركز صيانة لتركيبها، أو يمكننا ترتيب التركيب لك مقابل رسوم إضافية.",
+  "Genuine only":"أصلية فقط","Every part is original Apple quality, so Face ID, True Tone and camera performance work as they should.":"كل قطعة أصلية، لتعمل ميزات مثل Face ID وTrue Tone والكاميرا كما ينبغي.",
+  "Tested first":"مفحوصة أولاً","Each part is checked before it leaves us, so it fits and works the first time.":"نفحص كل قطعة قبل أن تغادرنا لتناسب جهازك وتعمل من أول مرة.",
+  "Simple ordering":"طلب بسيط","Fill your cart, check out, and your order summary opens in WhatsApp. We confirm price and delivery with you there.":"املأ السلة ثم أتمم الطلب ليُفتح ملخص طلبك في واتساب. نؤكد معك السعر والتوصيل هناك.",
+  "Parts only, fitting optional":"القطع فقط، والتركيب اختياري","Our prices cover the part only. Fit it at any service centre, or ask us to arrange fitting for an additional charge.":"أسعارنا تشمل القطعة فقط. ركّبها في أي مركز صيانة، أو اطلب منا ترتيب التركيب مقابل رسوم إضافية.",
+  "Track your order":"تتبع طلبك","Every order gets an order ID. Use Track order at the top to see its status and shipping details.":"يحصل كل طلب على رقم طلب. استخدم «تتبع الطلب» في الأعلى لمعرفة حالته وتفاصيل الشحن.",
+  "icare_qatar · Qatar. Prices in QAR. Apple and iPhone are trademarks of Apple Inc. This store is not affiliated with Apple.":"icare_qatar · قطر. الأسعار بالريال القطري. Apple وiPhone علامتان تجاريتان لشركة Apple Inc. هذا المتجر غير تابع لشركة Apple.",
+  "Your order":"طلبك","Your cart is empty.":"سلتك فارغة.","Pick a model and add the parts you need.":"اختر الموديل وأضف القطع التي تحتاجها.","Remove":"إزالة",
+  "Full name":"الاسم الكامل","Phone number":"رقم الهاتف","Delivery address or pickup note":"عنوان التوصيل أو ملاحظة الاستلام",
+  "Please arrange the fitting for me. This is an additional charge, quoted on WhatsApp. Leave unticked to fit the part yourself at any service centre.":"يرجى ترتيب التركيب لي. هذه رسوم إضافية تُحدَّد عبر واتساب. اترك الخيار فارغاً إذا كنت ستركّب القطعة بنفسك في أي مركز صيانة.",
+  "Order ID:":"رقم الطلب:","Total":"الإجمالي","Send order on WhatsApp":"أرسل الطلب عبر واتساب",
+  "Order":"الطلب","is ready in WhatsApp. Save this ID to track your order.":"جاهز في واتساب. احتفظ بهذا الرقم لتتبع طلبك.","Start a new order":"ابدأ طلباً جديداً","Copy order summary":"نسخ ملخص الطلب",
+  "Parts price only, fitting not included. Delivery takes 1 to 14 days. Your order opens in WhatsApp, where payment and delivery are confirmed.":"السعر للقطعة فقط والتركيب غير مشمول. يستغرق التوصيل من 1 إلى 14 يوماً. سيُفتح طلبك في واتساب حيث يتم تأكيد الدفع والتوصيل.",
+  "Track":"تتبع","Order ID, e.g. IC-7K2QX":"رقم الطلب، مثال IC-7K2QX","Order ID":"رقم الطلب",
+  "Confirmed":"تم التأكيد","Packed":"تم التجهيز","Shipped":"تم الشحن","Out for delivery":"خرج للتوصيل","Delivered":"تم التسليم",
+  "Courier:":"شركة الشحن:","Tracking number:":"رقم التتبع:","Note:":"ملاحظة:","Last update:":"آخر تحديث:",
+  "Genuine · In stock":"أصلي · متوفر","Out of stock":"غير متوفر","Add":"إضافة","Sold out":"نفدت الكمية",
+  "All":"الكل","Display":"الشاشة","Battery":"البطارية","Camera":"الكاميرا","Charging":"الشحن","Body":"الهيكل","Audio":"الصوت","Other":"أخرى",
+  "Display Assembly":"شاشة كاملة","Genuine OLED / Retina display with True Tone and touch.":"شاشة أصلية OLED / Retina مع True Tone واللمس.",
+  "Original-capacity battery with full health reporting.":"بطارية بسعة أصلية مع عرض كامل لصحة البطارية.",
+  "Rear Camera":"الكاميرا الخلفية","Genuine main camera module, tested for focus and OIS.":"وحدة الكاميرا الرئيسية الأصلية، مفحوصة للتركيز والتثبيت البصري.",
+  "Front Camera":"الكاميرا الأمامية","Front camera with sensor flex, Face ID compatible.":"كاميرا أمامية مع كابل الحساس، متوافقة مع Face ID.",
+  "Charging Port Flex":"كابل منفذ الشحن","Lightning or USB-C port with microphone and antenna flex.":"منفذ Lightning أو USB-C مع كابل الميكروفون والهوائي.",
+  "Back Glass":"الزجاج الخلفي","Original back glass panel, wireless charging ready.":"زجاج خلفي أصلي، يدعم الشحن اللاسلكي.",
+  "Loudspeaker":"مكبر الصوت","Bottom loudspeaker module for clear, loud sound.":"وحدة مكبر الصوت السفلي لصوت واضح وعالٍ.",
+  "Earpiece Speaker":"سماعة الأذن","Top earpiece speaker for calls.":"سماعة المكالمات العلوية.",
+  "SIM Tray":"درج الشريحة","Genuine SIM tray with seal ring.":"درج شريحة SIM أصلي مع حلقة العزل."
+};
+AR["Battery"] = "البطارية";
+
+/* Translate text nodes and a few attributes in place. Originals are remembered so English can be restored. */
+const origText = new WeakMap();
+function tr(root){
+  if (!root) return;
+  if (root.nodeType === 3) {
+    const s = origText.has(root) ? origText.get(root) : root.nodeValue, k = s.trim();
+    if (!k) return;
+    const a = LANG === "ar" ? AR[k] : null;
+    if (a || origText.has(root)) { origText.set(root, s); root.nodeValue = a ? s.replace(k, a) : s; }
+    return;
+  }
+  if (root.nodeType !== 1 || /^(SCRIPT|STYLE|TEXTAREA)$/.test(root.tagName)) return;
+  for (const at of ["placeholder", "aria-label"]) {
+    if (!root.hasAttribute(at)) continue;
+    const key = "o" + at;
+    if (root.dataset[key] === undefined) root.dataset[key] = root.getAttribute(at);
+    const a = LANG === "ar" ? AR[root.dataset[key]] : null;
+    root.setAttribute(at, a || root.dataset[key]);
+  }
+  root.childNodes.forEach(tr);
+}
+function applyLang(){
+  document.documentElement.lang = LANG;
+  document.documentElement.dir = LANG === "ar" ? "rtl" : "ltr";
+  $("#langBtn").textContent = LANG === "ar" ? "English" : "العربية";
+  tr(document.body);
+  refreshAll();
+  try { localStorage.setItem("lang", LANG); } catch(e){}
+}
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const ICON = Object.fromEntries(PARTS.map(p => [p.id, p.icon]));
+const BOX_ICON = '<path d="M32 8l20 10v28L32 56 12 46V18z"/><path d="M12 18l20 10 20-10M32 28v28"/>';
+
+/* Shared shop data (stock, prices, added products), kept in the page database. */
+let shop = { extra: [], off: {}, prices: {}, orders: {} };
+const STEPS = ["Confirmed", "Packed", "Shipped", "Out for delivery", "Delivered"];
+const newId = () => "IC-" + Math.random().toString(36).slice(2, 7).toUpperCase();
+let orderId = newId();
+const slug = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const skey = (partId, model) => partId + "__" + slug(model);
+const allParts = () => PARTS.concat((shop.extra || []).map(e => ({ ...e, icon: ICON[e.icon] || BOX_ICON })));
+const baseOf = p => (shop.prices && shop.prices[p.id] != null) ? shop.prices[p.id] : p.base;
+const price = (p, m) => Math.round(baseOf(p) * m / 5) * 5;
+const inStock = (partId, model) => !(shop.off && shop.off[skey(partId, model)]);
+
+let state = { series: 0, model: SERIES[0].models[0], cat: "All", cart: [] };
+try { const saved = JSON.parse(localStorage.getItem("cart") || "[]"); if (Array.isArray(saved)) state.cart = saved; } catch(e){}
+const save = () => { try { localStorage.setItem("cart", JSON.stringify(state.cart)); } catch(e){} };
+
+function renderSeries(){
+  $("#series").innerHTML = SERIES.map((s,i)=>`<button class="pill" data-s="${i}" aria-pressed="${i===state.series}">${s.name}</button>`).join("");
+  $("#models").innerHTML = SERIES[state.series].models.map((m,i)=>`<button class="pill" data-m="${i}" aria-pressed="${m[0]===state.model[0]}">${m[0]}</button>`).join("");
+}
+function renderTabs(){
+  const cats = ["All", ...new Set(allParts().map(p=>p.cat))];
+  if (!cats.includes(state.cat)) state.cat = "All";
+  $("#tabs").innerHTML = cats.map(c=>`<button class="tab" data-c="${esc(c)}" aria-pressed="${c===state.cat}">${esc(c)}</button>`).join("");
+}
+function renderGrid(){
+  const [name, m] = state.model;
+  const list = allParts().filter(p => state.cat==="All" || p.cat===state.cat);
+  const nIn = list.filter(p => inStock(p.id, name)).length;
+  $("#pickedName").textContent = name;
+  $("#pickedCount").textContent = tx(nIn + " of " + list.length + " parts in stock", nIn + " من " + list.length + " قطعة متوفرة");
+  $("#grid").innerHTML = list.map(p=>{
+    const ok = inStock(p.id, name);
+    return `
+    <article class="card${ok?"":" out"}">
+      <div class="ico"><svg viewBox="0 0 64 64" aria-hidden="true">${p.icon}</svg></div>
+      <span class="tag${ok?"":" off"}">${ok?"Genuine · In stock":"Out of stock"}</span>
+      <h3>${esc(p.name)}</h3>
+      <p>${esc(p.desc)}</p>
+      <div class="row"><span class="price">${fmt(price(p,m))}</span><button class="add" data-add="${esc(p.id)}" ${ok?"":"disabled"} aria-label="${ok?"Add":"Out of stock:"} ${esc(p.name)} for ${esc(name)}">${ok?"Add":"Sold out"}</button></div>
+    </article>`;}).join("");
+}
+
+function add(partId){
+  const p = allParts().find(x=>x.id===partId), [model,m] = state.model;
+  if (!p || !inStock(partId, model)) return;
+  const key = partId + "|" + model;
+  const ex = state.cart.find(i=>i.key===key);
+  if (ex) ex.qty++; else state.cart.push({ key, part:p.name, model, price:price(p,m), qty:1 });
+  save(); renderCart(); openCart();
+}
+const total = () => state.cart.reduce((s,i)=>s+i.price*i.qty,0);
+
+function buildMessage(){
+  const name = ($("#cName")?.value||"").trim(), phone = ($("#cPhone")?.value||"").trim(), addr = ($("#cAddr")?.value||"").trim();
+  const lines = state.cart.map((i,n)=>`${n+1}. ${i.part} - ${i.model}\n    ${i.qty} x ${fmtEn(i.price)} = ${fmtEn(i.qty*i.price)}`);
+  const fit = $("#cFit")?.checked;
+  return [
+    `*New order - ${STORE_NAME}*`,
+    `Order ID: ${orderId}`, "",
+    `Name: ${name||"-"}`, `Phone: ${phone||"-"}`, `Address: ${addr||"-"}`, "",
+    "*Order summary*", ...lines, "",
+    `*Parts total: ${fmtEn(total())}*`,
+    "Prices are for parts only. Fitting is not included.",
+    "Expected delivery: 1 to 14 days (to be confirmed).",
+    fit ? "Fitting: please arrange fitting for me and quote the additional charge." : "Fitting: not needed, I will use my own service centre.", "",
+    "Please confirm availability, delivery and payment."
+  ].join("\n");
+}
+function updateLink(){
+  const ready = state.cart.length>0 && ($("#cName")?.value||"").trim() && ($("#cPhone")?.value||"").trim();
+  const a = $("#waLink");
+  a.setAttribute("aria-disabled", ready ? "false" : "true");
+  a.href = ready ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildMessage())}` : "#";
+  $("#err").textContent = "";
+}
+function renderCart(){
+  const n = state.cart.reduce((s,i)=>s+i.qty,0);
+  $("#count").textContent = n;
+  const keep = { n:$("#cName")?.value||"", p:$("#cPhone")?.value||"", a:$("#cAddr")?.value||"", f:$("#cFit")?.checked||false };
+  if (!state.cart.length){
+    $("#cartBody").innerHTML = '<div class="empty">Your cart is empty.<br>Pick a model and add the parts you need.</div>';
+    $("#cartFoot").hidden = true; return;
+  }
+  $("#cartBody").innerHTML = state.cart.map((i,idx)=>`
+    <div class="line">
+      <b>${esc(i.part)}</b><span class="lp">${fmt(i.price*i.qty)}</span>
+      <small>${esc(i.model)} · ${fmt(i.price)} ${tx('each','للواحدة')}</small>
+      <div class="qty"><button data-dec="${idx}" aria-label="Decrease quantity">−</button><span>${i.qty}</span><button data-inc="${idx}" aria-label="Increase quantity">+</button></div>
+      <button class="rm" data-rm="${idx}">Remove</button>
+    </div>`).join("") + `
+    <div class="form">
+      <label for="cName">Full name<input id="cName" autocomplete="name" value="${keep.n.replace(/"/g,"&quot;")}"></label>
+      <label for="cPhone">Phone number<input id="cPhone" type="tel" autocomplete="tel" value="${keep.p.replace(/"/g,"&quot;")}"></label>
+      <label for="cAddr">Delivery address or pickup note<textarea id="cAddr">${keep.a.replace(/</g,"&lt;")}</textarea></label>
+      <label class="chk" for="cFit"><input id="cFit" type="checkbox" ${keep.f?"checked":""}><span>Please arrange the fitting for me. This is an additional charge, quoted on WhatsApp. Leave unticked to fit the part yourself at any service centre.</span></label>
+    </div>
+    <div class="oid">Order ID: <b>${orderId}</b></div>`;
+  $("#total").textContent = fmt(total());
+  $("#cartFoot").hidden = false;
+  updateLink();
+}
+function openCart(){ $("#drawer").classList.add("on"); $("#scrim").classList.add("on"); $("#drawer").setAttribute("aria-hidden","false"); }
+function closeCart(){ $("#drawer").classList.remove("on"); $("#scrim").classList.remove("on"); $("#drawer").setAttribute("aria-hidden","true"); }
+
+document.addEventListener("click", e=>{
+  const t = e.target.closest("button, a"); if(!t) return;
+  if (t.dataset.s!==undefined){ state.series=+t.dataset.s; state.model=SERIES[state.series].models[0]; renderSeries(); renderGrid(); }
+  else if (t.dataset.m!==undefined){ state.model=SERIES[state.series].models[+t.dataset.m]; renderSeries(); renderGrid(); }
+  else if (t.dataset.c!==undefined){ state.cat=t.dataset.c; renderTabs(); renderGrid(); }
+  else if (t.dataset.add){ add(t.dataset.add); }
+  else if (t.dataset.inc!==undefined){ state.cart[+t.dataset.inc].qty++; save(); renderCart(); }
+  else if (t.dataset.dec!==undefined){ const i=state.cart[+t.dataset.dec]; if(--i.qty<=0) state.cart.splice(+t.dataset.dec,1); save(); renderCart(); }
+  else if (t.dataset.rm!==undefined){ state.cart.splice(+t.dataset.rm,1); save(); renderCart(); }
+  else if (t.id==="openCart"){ openCart(); }
+  else if (t.id==="closeCart"){ closeCart(); }
+  else if (t.id==="waLink"){
+    if (t.getAttribute("aria-disabled")==="true"){ e.preventDefault(); }
+  }
+  else if (t.id==="copyBtn"){
+    const msg = buildMessage();
+    (navigator.clipboard ? navigator.clipboard.writeText(msg) : Promise.reject()).then(
+      ()=>{ $("#err").textContent=tx("Order summary copied.","تم نسخ ملخص الطلب."); },
+      ()=>{ $("#err").textContent=tx("Copy is not available here. Use the WhatsApp button.","النسخ غير متاح هنا. استخدم زر واتساب."); });
+  }
+});
+$("#scrim").addEventListener("click", closeCart);
+document.addEventListener("keydown", e=>{ if(e.key==="Escape"){ closeCart(); closeModals(); } });
+document.addEventListener("input", e=>{ if(e.target.closest(".form")) updateLink(); });
+document.addEventListener("change", e=>{ if(e.target.id==="cFit") updateLink(); });
+$("#waLink").addEventListener("click", ()=>{
+  if ($("#waLink").getAttribute("aria-disabled")==="true") return;
+  $("#sentId").textContent = orderId; $("#sent").hidden = false;
+});
+$("#newOrder").addEventListener("click", ()=>{
+  state.cart = []; save(); orderId = newId(); $("#sent").hidden = true; renderCart();
+});
+
+/* ===== Customer order tracking ===== */
+function openModal(id){ $(id).classList.add("on"); }
+function closeModals(){ document.querySelectorAll(".adm.on").forEach(m=>m.classList.remove("on")); }
+function renderTrack(){
+  const id = $("#trkId").value.trim().toUpperCase(), out = $("#trkOut");
+  if (!id) { out.innerHTML = `<p class="adm-msg">${tx("Enter the order ID from your WhatsApp order message.","أدخل رقم الطلب الموجود في رسالة طلبك على واتساب.")}</p>`; return; }
+  const wa = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi, please send me an update on order " + id)}`;
+  const askWa = `<a href="${wa}" target="_blank" rel="noopener">${tx("ask us on WhatsApp","اسألنا عبر واتساب")}</a>`;
+  const o = shop.orders && shop.orders[id];
+  if (!o) {
+    out.innerHTML = `<p class="adm-msg">${db ? tx("No update for this order yet. Updates appear here after we confirm your order on WhatsApp.","لا يوجد تحديث لهذا الطلب بعد. تظهر التحديثات هنا بعد تأكيد طلبك عبر واتساب.") : tx("Live tracking is not available in this view.","التتبع المباشر غير متاح هنا.")} ${tx("You can also","يمكنك أيضاً")} ${askWa}.</p>`;
+    return;
+  }
+  const at = STEPS.indexOf(o.status);
+  out.innerHTML = `<ul class="tl">${STEPS.map((s,i)=>`<li class="${i<=at?"done":""}${i===at?" now":""}">${s}</li>`).join("")}</ul>
+    <div class="facts">
+      ${o.courier ? `<div><span>Courier:</span> ${esc(o.courier)}</div>` : ""}
+      ${o.number ? `<div><span>Tracking number:</span> ${esc(o.number)}</div>` : ""}
+      ${o.note ? `<div><span>Note:</span> ${esc(o.note)}</div>` : ""}
+      ${o.updated ? `<div><span>Last update:</span> ${esc(o.updated)}</div>` : ""}
+    </div>`;
+}
+$("#openTrk").addEventListener("click", e=>{ e.preventDefault(); $("#trkOut").innerHTML = ""; openModal("#trk"); $("#trkId").focus(); });
+$("#closeTrk").addEventListener("click", closeModals);
+$("#trkGo").addEventListener("click", renderTrack);
+$("#trkId").addEventListener("keydown", e=>{ if(e.key==="Enter") renderTrack(); });
+
+/* ===== Stock manager (owner / editors only) ===== */
+const ALLMODELS = SERIES.flatMap(s => s.models);
+let db = null, admModel = 0, saving = false;
+const msg = t => { $("#admMsg").textContent = t; };
+
+async function persist(){
+  if (!db) { msg("Storage is not available in this view. Changes are not saved."); return; }
+  if (saving) { msg("Still saving the last change. Try again in a moment."); return; }
+  saving = true;
+  try { await db.doc("shop/catalog").set(JSON.parse(JSON.stringify(shop))); msg("Saved."); }
+  catch(e){ msg("Could not save. Only the store owner or an editor can change stock."); }
+  saving = false;
+}
+function refreshAll(){ renderTabs(); renderGrid(); renderCart(); if ($("#adm").classList.contains("on")) renderAdm(); if ($("#trk").classList.contains("on") && $("#trkId").value.trim()) renderTrack(); }
+
+function renderAdm(){
+  const sel = $("#admModel");
+  if (!sel.options.length) sel.innerHTML = ALLMODELS.map((m,i)=>`<option value="${i}">${esc(m[0])}</option>`).join("");
+  sel.value = admModel;
+  const [mn, mm] = ALLMODELS[admModel];
+  const parts = allParts();
+  $("#admList").innerHTML = parts.map(p => {
+    const ok = inStock(p.id, mn), custom = (shop.extra||[]).some(e => e.id === p.id);
+    return `<div class="arow">
+      <div><b>${esc(p.name)}</b><small>${esc(p.cat)} · ${ok?"In stock":"Out of stock"}</small></div>
+      <input type="number" min="0" step="5" value="${price(p,mm)}" data-pr="${esc(p.id)}" aria-label="Price in ${CURRENCY} for ${esc(p.name)} on ${esc(mn)}">
+      <span style="display:flex;gap:12px;align-items:center">
+        <button class="sw" data-sw="${esc(p.id)}" aria-pressed="${ok}" aria-label="In stock: ${esc(p.name)}"></button>
+        ${custom ? `<button class="mini-rm" data-del="${esc(p.id)}">Delete</button>` : ""}
+      </span></div>`;
+  }).join("");
+  if (!$("#oStatus").options.length) $("#oStatus").innerHTML = STEPS.map(s=>`<option value="${s}">${s}</option>`).join("");
+  const ids = Object.keys(shop.orders || {}).sort().reverse();
+  $("#oList").innerHTML = ids.length ? ids.map(id => { const o = shop.orders[id]; return `<div class="orow"><span><b>${esc(id)}</b> · ${esc(o.status)}<small> ${esc(o.courier||"")} ${esc(o.number||"")}</small></span><span><button class="sm" data-oedit="${esc(id)}">Edit</button> <button class="mini-rm" data-odel="${esc(id)}">Delete</button></span></div>`; }).join("") : '<p class="adm-msg">No tracking updates yet.</p>';
+  $("#catList").innerHTML = [...new Set(parts.map(p=>p.cat))].map(c=>`<option value="${esc(c)}">`).join("");
+  if (!$("#npIcon").options.length) $("#npIcon").innerHTML = PARTS.map(p=>`<option value="${p.id}">Icon: ${esc(p.name)}</option>`).join("");
+}
+function setStock(partId, model, on){
+  const k = skey(partId, model);
+  if (on) delete shop.off[k]; else shop.off[k] = true;
+}
+
+$("#openAdm").addEventListener("click", ()=>{ admModel = Math.max(0, ALLMODELS.findIndex(m=>m[0]===state.model[0])); msg(""); renderAdm(); $("#adm").classList.add("on"); });
+$("#closeAdm").addEventListener("click", ()=> $("#adm").classList.remove("on"));
+$("#admModel").addEventListener("change", e=>{ admModel = +e.target.value; renderAdm(); });
+$("#admList").addEventListener("click", async e=>{
+  const b = e.target.closest("button"); if(!b) return;
+  const mn = ALLMODELS[admModel][0];
+  if (b.dataset.sw){ setStock(b.dataset.sw, mn, b.getAttribute("aria-pressed")!=="true"); refreshAll(); await persist(); }
+  else if (b.dataset.del){ shop.extra = shop.extra.filter(x=>x.id!==b.dataset.del); refreshAll(); await persist(); }
+});
+$("#admList").addEventListener("change", async e=>{
+  const i = e.target.closest("input[data-pr]"); if(!i) return;
+  const v = parseFloat(i.value), m = ALLMODELS[admModel][1];
+  if (!(v >= 0)) { renderAdm(); return; }
+  shop.prices[i.dataset.pr] = Math.round(v / m * 100) / 100;
+  refreshAll(); await persist();
+});
+async function bulk(on){
+  const mn = ALLMODELS[admModel][0];
+  allParts().forEach(p => setStock(p.id, mn, on));
+  refreshAll(); await persist();
+}
+$("#oSave").addEventListener("click", async ()=>{
+  const id = $("#oId").value.trim().toUpperCase();
+  if (!id) { msg("Enter the order ID first."); return; }
+  shop.orders = shop.orders || {};
+  shop.orders[id] = { status: $("#oStatus").value, courier: $("#oCourier").value.trim(), number: $("#oNum").value.trim(), note: $("#oNote").value.trim(), updated: new Date().toISOString().slice(0,10) };
+  ["#oId","#oCourier","#oNum","#oNote"].forEach(s => $(s).value = "");
+  refreshAll(); await persist();
+});
+$("#oList").addEventListener("click", async e=>{
+  const b = e.target.closest("button"); if(!b) return;
+  if (b.dataset.oedit){ const o = shop.orders[b.dataset.oedit]; $("#oId").value = b.dataset.oedit; $("#oStatus").value = o.status; $("#oCourier").value = o.courier||""; $("#oNum").value = o.number||""; $("#oNote").value = o.note||""; }
+  else if (b.dataset.odel){ delete shop.orders[b.dataset.odel]; refreshAll(); await persist(); }
+});
+$("#allIn").addEventListener("click", ()=>bulk(true));
+$("#allOut").addEventListener("click", ()=>bulk(false));
+$("#npAdd").addEventListener("click", async ()=>{
+  const name = $("#npName").value.trim(), cat = $("#npCat").value.trim() || "Other";
+  const base = parseFloat($("#npPrice").value), desc = $("#npDesc").value.trim();
+  if (!name || !(base >= 0)) { msg("Enter a product name and a base price."); return; }
+  shop.extra = (shop.extra||[]).concat([{ id:"c"+Date.now().toString(36), name, cat, base, desc: desc || "Genuine part.", icon: $("#npIcon").value }]);
+  ["#npName","#npCat","#npPrice","#npDesc"].forEach(s => $(s).value = "");
+  refreshAll(); await persist();
+});
+
+(async () => {
+  try {
+    if (!window.firebase || FIREBASE_CONFIG.apiKey === "YOUR_API_KEY") return;   // not configured: store runs with defaults
+    firebase.initializeApp(FIREBASE_CONFIG);
+    const fdb = firebase.firestore(), auth = firebase.auth();
+    db = { doc: p => ({
+      set: d => fdb.doc(p).set(d),
+      onSnapshot: (next, err) => fdb.doc(p).onSnapshot(s => next({ exists: s.exists, data: () => s.data() }), err)
+    }) };
+    auth.onAuthStateChanged(u => {
+      const ok = !!u && (u.email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase();
+      $("#openAdm").classList.toggle("on", ok);
+      $("#ownerLink").textContent = u ? "Sign out" : "Owner login";
+    });
+    $("#ownerLink").addEventListener("click", e => {
+      e.preventDefault();
+      if (auth.currentUser) { auth.signOut(); return; }
+      $("#lMsg").textContent = ""; $("#login").classList.add("on"); $("#lEmail").focus();
+    });
+    $("#closeLogin").addEventListener("click", () => $("#login").classList.remove("on"));
+    $("#lGo").addEventListener("click", async () => {
+      try { await auth.signInWithEmailAndPassword($("#lEmail").value.trim(), $("#lPass").value); $("#lPass").value = ""; $("#login").classList.remove("on"); }
+      catch(e){ $("#lMsg").textContent = "Sign in failed. Check the email and password."; }
+    });
+    db.doc("shop/catalog").onSnapshot(snap => {
+      if (saving) return;
+      const d = snap.exists ? snap.data() : null;
+      shop = { extra: (d && d.extra) ? [...d.extra] : [], off: (d && d.off) ? {...d.off} : {}, prices: (d && d.prices) ? {...d.prices} : {}, orders: (d && d.orders) ? {...d.orders} : {} };
+      refreshAll();
+    }, () => {});
+  } catch(e) {}
+})();
+
+renderSeries(); renderTabs(); renderGrid(); renderCart();
+$("#langBtn").addEventListener("click", ()=>{ LANG = LANG === "ar" ? "en" : "ar"; applyLang(); });
+new MutationObserver(ms => { if (LANG !== "ar") return; ms.forEach(m => m.addedNodes.forEach(tr)); }).observe(document.body, { childList:true, subtree:true });
+applyLang();
+</script>
+</body>
+</html>
